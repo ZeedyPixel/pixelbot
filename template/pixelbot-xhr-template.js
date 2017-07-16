@@ -6,8 +6,20 @@ points = [
 ox = ${ox};
 oy = ${oy};
 points.forEach(p => {p.x += ox; p.y += oy});
+//generate fingerprint
+function fingerprint() {
+  var fingerprint = "";
+  var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-function paint(x, y, color, token, cb) {
+  for (var i = 0; i < 32; i++)
+    fingerprint += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+  return fingerprint;
+}
+
+var fingerprint = fingerprint();
+console.log("Fingerprint: " + fingerprint);
+function paint(x, y, z, color, token, cb) {
 	req = new XMLHttpRequest();
 	req.open('POST', '/api/pixel');
 	req.setRequestHeader("Content-type", "application/json");
@@ -23,12 +35,13 @@ function paint(x, y, color, token, cb) {
 		res = JSON.parse(req.responseText);
 		cb(res);
 	}
-	data = JSON.stringify({x:x, y:y, color:color, fingerprint: "${fingerprint}", token: token})
+//api allways changing
+	data = JSON.stringify({x:x, y:y,z:x+y+2 color:color, fingerprint: fingerprint, token: token})
 	req.send(data);
 }
 
 function doPaint(point, token, done) {
-	paint(next.x, next.y, next.color, null, function () {
+	paint(next.x, next.y, next.x + next.y + 2, next.color, null, function () {
 		if (res.success) {
 			done();
 		} else if (res.waitSeconds > 0) {
